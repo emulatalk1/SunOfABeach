@@ -1,3 +1,35 @@
-<resources>
-    <string name="app_name">Sun Of A Beach</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">SunOfABeach</string>
+    <string name="error_message">An error has occurred. Please try again by clicking REFRESH</string>
+    <string name="action_refresh">Refresh</string>
+
+    <!-- - - - - - - - - - - - - - - -->
+    <!--Used by SunOfABeachDateUtils -->
+    <!-- - - - - - - - - - - - - - - -->
+
+    <!-- For labelling today's forecast -->
+    <string name="today">Today</string>
+
+    <!-- For labelling tomorrow's forecast -->
+    <string name="tomorrow">Tomorrow</string>
+
+    <!-- Date format -->
+    <string name="format_full_friendly_date">
+        <xliff:g id="month">%1$s</xliff:g>, <xliff:g id="day">%2$s</xliff:g>
+    </string>
+
+    <!-- - - - - - - - - - - - - - - -->
+    <!-- Used by SunshineWeatherUtils-->
+    <!-- - - - - - - - - - - - - - - -->
+
+    <!-- Temperature format in Celsius -->
+    <string name="format_temperature_celsius">
+        <xliff:g id="temp">%1.0f</xliff:g>\u00B0C
+    </string>
+
+    <!-- Temperature format in Fahrenheit -->
+    <string name="format_temperature_fahrenheit">
+        <xliff:g id="temp">%1.0f</xliff:g>\u00B0F
+    </string>
+
 </resources>
