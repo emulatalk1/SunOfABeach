@@ -46,14 +46,23 @@ public final class OpenWeatherJsonUtils {
 
         final String OWM_MESSAGE_CODE = "cod";
 
+        /* This is For free API, sadness :( */
+        final String FREE_LIST = "list";
+        final String FREE_TEMPERATURE = "main";
+        final String FREE_MAX = "temp_max";
+        final String FREE_MIN = "temp_min";
+        final String FREE_WEATHER = "weather";
+        final String FREE_DESCRIPTION = "description";
+        final String FREE_MESSAGE_CODE = "cod";
+
         /* String array to hold each day's weather String */
         String[] parsedWeatherData = null;
 
         JSONObject forecastJson = new JSONObject(forecastJsonStr);
 
         /* Is there an error? */
-        if (forecastJson.has(OWM_MESSAGE_CODE)) {
-            int errorCode = forecastJson.getInt(OWM_MESSAGE_CODE);
+        if (forecastJson.has(FREE_MESSAGE_CODE)) {
+            int errorCode = forecastJson.getInt(FREE_MESSAGE_CODE);
             switch (errorCode) {
                 case HttpURLConnection.HTTP_OK:
                     break;
@@ -66,7 +75,7 @@ public final class OpenWeatherJsonUtils {
             }
         }
 
-        JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
+        JSONArray weatherArray = forecastJson.getJSONArray(FREE_LIST);
         parsedWeatherData = new String[weatherArray.length()];
 
         long localDate = System.currentTimeMillis();
@@ -98,12 +107,12 @@ public final class OpenWeatherJsonUtils {
              * That element also contains a weather code.
              */
             // TODO .getJSONObject(0) - not sure at "0"
-            JSONObject weatherObject = dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
-            description = weatherObject.getString(OWM_DESCRIPTION);
+            JSONObject weatherObject = dayForecast.getJSONArray(FREE_WEATHER).getJSONObject(0);
+            description = weatherObject.getString(FREE_DESCRIPTION);
 
-            JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
-            high = temperatureObject.getDouble(OWM_MAX);
-            low = temperatureObject.getDouble(OWM_MIN);
+            JSONObject temperatureObject = dayForecast.getJSONObject(FREE_TEMPERATURE);
+            high = temperatureObject.getDouble(FREE_MAX);
+            low = temperatureObject.getDouble(FREE_MIN);
             highAndLow = SunOfABeachWeatherUtils.formatHighLows(context, high, low);
 
             parsedWeatherData[i] = date + " - " + description + " - " + highAndLow;

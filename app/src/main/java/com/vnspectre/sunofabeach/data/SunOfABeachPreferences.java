@@ -14,7 +14,7 @@ public class SunOfABeachPreferences {
      * Before you implement methods to return your REAL preference for location,
      * I use some default values to test.
      */
-    private static final String DEFAULT_WEATHER_LOCATION = "94043,USA";
+    private static final String DEFAULT_WEATHER_LOCATION = "Hanoi";
 
     /**
      * Returns true if the user has selected metric temperature display.
