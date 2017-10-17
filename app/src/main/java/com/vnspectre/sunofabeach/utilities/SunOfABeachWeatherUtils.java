@@ -2,17 +2,32 @@ package com.vnspectre.sunofabeach.utilities;
 
 import android.content.Context;
 
+import com.vnspectre.sunofabeach.R;
+import com.vnspectre.sunofabeach.data.SunOfABeachPreferences;
+
 /**
  * Created by Spectre on 10/17/17.
  */
 
-
 /**
  * Contains useful utilities for a weather app, such as conversion between Celsius and Fahrenheit,
  * from kph to mph, and from degrees to NSEW.  It also contains the mapping of weather condition
- * codes in OpenWeatherMap to strings.  These strings are contained
+ * codes in OpenWeatherMap to strings. These strings are contained.
  */
-class SunOfABeachUtils {
+public final class SunOfABeachWeatherUtils {
+
+    /**
+     * This method will convert a temperature from Celsius to Fahrenheit.
+     *
+     * @param temperatureInCelsius Temperature in degrees Celsius(°C)
+     *
+     * @return Temperature in degrees Fahrenheit (°F)
+     */
+    private static double celsiusToFahrenheit(double temperatureInCelsius) {
+        double temperatureInFahrenheit = (temperatureInCelsius * 1.8) + 32;
+        return temperatureInFahrenheit;
+    }
+
     /**
      * Temperature data is stored in Celsius by our app. Depending on the user's preference,
      * the app may need to display the temperature in Fahrenheit. This method will perform that
@@ -28,7 +43,7 @@ class SunOfABeachUtils {
     public static String formatTemperature(Context context, double temperature) {
         int temperatureFormatResourceId = R.string.format_temperature_celsius;
 
-        if (!SunshinePreferences.isMetric(context)) {
+        if (!SunOfABeachPreferences.isMetric(context)) {
             temperature = celsiusToFahrenheit(temperature);
             temperatureFormatResourceId = R.string.format_temperature_fahrenheit;
         }
