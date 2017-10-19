@@ -106,7 +106,6 @@ public final class OpenWeatherJsonUtils {
              * Description is in a child array called "weather", which is 1 element long.
              * That element also contains a weather code.
              */
-            // TODO .getJSONObject(0) - not sure at "0"
             JSONObject weatherObject = dayForecast.getJSONArray(FREE_WEATHER).getJSONObject(0);
             description = weatherObject.getString(FREE_DESCRIPTION);
 
