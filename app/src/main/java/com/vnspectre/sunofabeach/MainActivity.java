@@ -1,5 +1,6 @@
 package com.vnspectre.sunofabeach;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,7 +12,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.vnspectre.sunofabeach.ForecastAdapter.ForecastAdapterOnClickHandler;
 import com.vnspectre.sunofabeach.data.SunOfABeachPreferences;
 import com.vnspectre.sunofabeach.utilities.NetworkUtils;
 import com.vnspectre.sunofabeach.utilities.OpenWeatherJsonUtils;
@@ -21,7 +24,7 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ForecastAdapterOnClickHandler {
 
     /* Declare a TextView variable called mWeatherTextView. */
     //private TextView mWeatherTextView;
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
          * The ForecastAdapter is responsible for linking our weather data with the Views that
          * will end up displaying our weather data.
          */
-        mForecastAdapter = new ForecastAdapter();
+        mForecastAdapter = new ForecastAdapter(this);
 
         /* Setting the adapter attaches it to the RecyclerView in our layout. */
         mRecyclerView.setAdapter(mForecastAdapter);
@@ -142,6 +145,18 @@ public class MainActivity extends AppCompatActivity {
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * This method is overridden by our MainActivity class in order to handle RecyclerView item
+     * clicks.
+     *
+     * @param weatherForDay The weather for the day that was clicked
+     */
+    @Override
+    public void onClick(String weatherForDay) {
+        Context context = this;
+        Toast.makeText(context, weatherForDay, Toast.LENGTH_SHORT).show();
+    }
+
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         /* Show the loading indicator, it means that data is fetching */
@@ -179,11 +194,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String[] weatherdata) {
+        protected void onPostExecute(String[] weatherData) {
             /* As soon as the data is finished loading, hide the loading indicator. */
             mLoadingIndicator.setVisibility(View.INVISIBLE);
 
-            if (weatherdata != null) {
+            if (weatherData != null) {
                 /* If the weather data was not null, make sure the data view is visible. */
                 showWeatherDataView();
 
@@ -195,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
 //                for (String weatherString : weatherdata) {
 //                    mWeatherTextView.append(weatherString + "\n\n\n");
 //                }
-                mForecastAdapter.setWeatherdata(weatherdata);
+                mForecastAdapter.setWeatherdata(weatherData);
             } else {
                 /* If the weather data was null, shows the error message. */
                 showErrorMessage();
