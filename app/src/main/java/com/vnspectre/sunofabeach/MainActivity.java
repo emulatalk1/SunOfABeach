@@ -2,6 +2,7 @@ package com.vnspectre.sunofabeach;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -147,6 +148,23 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
     }
 
     /**
+     * This method uses URI scheme for showing a location found on a map.
+     */
+    private void openLocationInMap() {
+        String addressString = ("8 Lê Văn Linh, Thanh Khê, Cẩm Lệ, Đà Nẵng, Việt Nam");
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme("geo").encodedPath("0,0").appendQueryParameter("q", addressString);
+        Uri addressUri = builder.build();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(addressUri);
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    /**
      * This method is overridden by our MainActivity class in order to handle RecyclerView item
      * clicks.
      *
@@ -158,6 +176,10 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 //        Toast.makeText(context, weatherForDay, Toast.LENGTH_SHORT).show();
         Class destinationClass = DetailActivity.class;
         Intent intent = new Intent(context, destinationClass);
+
+        /* Pass the weather to DetailActivity */
+        intent.putExtra(Intent.EXTRA_TEXT, weatherForDay);
+
         startActivity(intent);
     }
 
@@ -243,6 +265,11 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
             //mWeatherTextView.setText("");
             mForecastAdapter.setWeatherdata(null);
             loadWeatherData();
+            return true;
+        }
+
+        if (id == R.id.action_map) {
+            openLocationInMap();
             return true;
         }
 
