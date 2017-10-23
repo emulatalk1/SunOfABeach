@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v4.app.LoaderManager.*;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,7 +29,7 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity implements ForecastAdapterOnClickHandler {
+public class MainActivity extends AppCompatActivity implements ForecastAdapterOnClickHandler, LoaderCallbacks<String[]> {
 
     /* Declare a TextView variable called mWeatherTextView. */
     //private TextView mWeatherTextView;
@@ -38,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 
     /* Declare a ProgressBar variable to show and hide the progress bar. */
     private ProgressBar mLoadingIndicator;
+
+    private static final int FORECAST_LOADER_ID = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,20 +112,49 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 //        }
 
         /* Once all of our views are setup, we can load the weather data. */
-        loadWeatherData();
+        //loadWeatherData();
+
+        /*
+         * This ID will uniquely identify the Loader. We can use it, for example, to get a handle
+         * on our Loader at a later point in time through the support LoaderManager.
+         */
+        int loaderId = FORECAST_LOADER_ID;
+
+        /*
+         * From MainActivity, we have implemented the LoaderCallbacks interface with the type of
+         * String array. (implements LoaderCallbacks<String[]>) The variable callback is passed
+         * to the call to initLoader below. This means that whenever the loaderManager has
+         * something to notify us of, it will do so through this callback.
+         */
+        LoaderCallbacks<String[]> callback = MainActivity.this;
+
+        /*
+         * The second parameter of the initLoader method below is a Bundle. Optionally, we can
+         * pass a Bundle to initLoader that you can then access from within the onCreateLoader
+         * callback. In our case, we don't actually use the Bundle, but it's here in case we wanted
+         * to.
+         */
+        Bundle bundleForLoader = null;
+
+        /*
+         * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
+         * created and (if the activity/fragment is currently started) starts the loader. Otherwise
+         * the last created loader is re-used.
+         */
+        getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
     }
 
     /**
      * This method will get the user's preferred location for weather, and then tell some
      * background method to get the weather data in the background.
      */
-    private void loadWeatherData() {
-        /* Call showWeatherDataView before executing the AsyncTask */
-        showWeatherDataView();
-
-        String location = SunOfABeachPreferences.getPreferredWeatherLocation(this);
-        new FetchWeatherTask().execute(location);
-    }
+//    private void loadWeatherData() {
+//        /* Call showWeatherDataView before executing the AsyncTask */
+//        showWeatherDataView();
+//
+//        String location = SunOfABeachPreferences.getPreferredWeatherLocation(this);
+//        new FetchWeatherTask().execute(location);
+//    }
 
     private void showWeatherDataView() {
         /* First, make sure the error is invisible */
@@ -183,66 +217,161 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
         startActivity(intent);
     }
 
-    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+    @Override
+    public Loader<String[]> onCreateLoader(int id, Bundle args) {
+        return new AsyncTaskLoader<String[]>(this) {
 
-        /* Show the loading indicator, it means that data is fetching */
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
+            /* This String array will hold and help cache our weather data */
+            String[] mWeatherData = null;
 
-        @Override
-        protected String[] doInBackground(String... params) {
-
-            /* If there's no zip code, there's nothing to look up. */
-            if (params.length == 0) {
-                return null;
+            /**
+             * Subclasses of AsyncTaskLoader must implement this to take care of loading their data.
+             */
+            @Override
+            protected void onStartLoading() {
+                if (mWeatherData != null) {
+                    deliverResult(mWeatherData);
+                } else {
+                    mLoadingIndicator.setVisibility(View.VISIBLE);
+                    forceLoad();
+                }
             }
 
-            String location = params[0];
-            URL weatherRequestUrl = NetworkUtils.buildUrl(location);
+            /**
+             * This is the method of the AsyncTaskLoader that will load and parse the JSON data
+             * from OpenWeatherMap in the background.
+             *
+             * @return Weather data from OpenWeatherMap as an array of Strings.
+             *         null if an error occurs
+             */
+            @Override
+            public String[] loadInBackground() {
+                String locationQuery = SunOfABeachPreferences.getPreferredWeatherLocation(MainActivity.this);
 
-            try {
-                String jsonWeatherResponse = NetworkUtils.getResponseFromHttpUrl(weatherRequestUrl);
+                URL weatherRequestUrl = NetworkUtils.buildUrl(locationQuery);
 
-                String[] simpleJsonWeatherData = OpenWeatherJsonUtils.getSimpleWeatherStringsFromJson(MainActivity.this, jsonWeatherResponse);
+                try {
+                    String jsonWeatherResponse = NetworkUtils.getResponseFromHttpUrl(weatherRequestUrl);
 
-                return  simpleJsonWeatherData;
+                    String[] simpleJsonWeatherData = OpenWeatherJsonUtils.getSimpleWeatherStringsFromJson(MainActivity.this, jsonWeatherResponse);
 
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return null;
+                    return simpleJsonWeatherData;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
-        }
 
-        @Override
-        protected void onPostExecute(String[] weatherData) {
-            /* As soon as the data is finished loading, hide the loading indicator. */
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-
-            if (weatherData != null) {
-                /* If the weather data was not null, make sure the data view is visible. */
-                showWeatherDataView();
-
-                /*
-                 * Iterate through the array and append the Strings to the TextView. The reason why we add
-                 * the "\n\n\n" after the String is to give visual separation between each String in the
-                 * TextView.
-                 */
-//                for (String weatherString : weatherdata) {
-//                    mWeatherTextView.append(weatherString + "\n\n\n");
-//                }
-                mForecastAdapter.setWeatherdata(weatherData);
-            } else {
-                /* If the weather data was null, shows the error message. */
-                showErrorMessage();
+            /**
+             * Sends the result of the load to the registered listener.
+             *
+             * @param data The result of the load
+             */
+            @Override
+            public void deliverResult(String[] data) {
+                mWeatherData = data;
+                super.deliverResult(data);
             }
+        };
+    }
+
+    /**
+     * Called when a previously created loader has finished its load.
+     *
+     * @param loader The Loader that has finished.
+     * @param data The data generated by the Loader.
+     */
+    @Override
+    public void onLoadFinished(Loader<String[]> loader, String[] data) {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        mForecastAdapter.setWeatherData(data);
+        if (null == data) {
+            showErrorMessage();
+        } else {
+            showWeatherDataView();
         }
     }
+
+    /**
+     * Called when a previously created loader is being reset, and thus
+     * making its data unavailable.  The application should at this point
+     * remove any references it has to the Loader's data.
+     *
+     * @param loader The Loader that is being reset.
+     */
+    @Override
+    public void onLoaderReset(Loader<String[]> loader) {
+
+    }
+
+    /**
+     * This method is used when we are resetting data, so that at one point in time during a
+     * refresh of our data, you can see that there is no data showing.
+     */
+    private void invalidateData() {
+        mForecastAdapter.setWeatherData(null);
+    }
+
+//    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+//
+//        /* Show the loading indicator, it means that data is fetching */
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//            mLoadingIndicator.setVisibility(View.VISIBLE);
+//        }
+//
+//        @Override
+//        protected String[] doInBackground(String... params) {
+//
+//            /* If there's no zip code, there's nothing to look up. */
+//            if (params.length == 0) {
+//                return null;
+//            }
+//
+//            String location = params[0];
+//            URL weatherRequestUrl = NetworkUtils.buildUrl(location);
+//
+//            try {
+//                String jsonWeatherResponse = NetworkUtils.getResponseFromHttpUrl(weatherRequestUrl);
+//
+//                String[] simpleJsonWeatherData = OpenWeatherJsonUtils.getSimpleWeatherStringsFromJson(MainActivity.this, jsonWeatherResponse);
+//
+//                return  simpleJsonWeatherData;
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                return null;
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//                return null;
+//            }
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String[] weatherData) {
+//            /* As soon as the data is finished loading, hide the loading indicator. */
+//            mLoadingIndicator.setVisibility(View.INVISIBLE);
+//
+//            if (weatherData != null) {
+//                /* If the weather data was not null, make sure the data view is visible. */
+//                showWeatherDataView();
+//
+//                /*
+//                 * Iterate through the array and append the Strings to the TextView. The reason why we add
+//                 * the "\n\n\n" after the String is to give visual separation between each String in the
+//                 * TextView.
+//                 */
+////                for (String weatherString : weatherdata) {
+////                    mWeatherTextView.append(weatherString + "\n\n\n");
+////                }
+//                mForecastAdapter.setWeatherData(weatherData);
+//            } else {
+//                /* If the weather data was null, shows the error message. */
+//                showErrorMessage();
+//            }
+//        }
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -263,8 +392,9 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 
         if (id == R.id.action_refresh) {
             //mWeatherTextView.setText("");
-            mForecastAdapter.setWeatherdata(null);
-            loadWeatherData();
+            //mForecastAdapter.setWeatherData(null);
+            invalidateData();
+            getSupportLoaderManager().restartLoader(FORECAST_LOADER_ID, null, this);
             return true;
         }
 

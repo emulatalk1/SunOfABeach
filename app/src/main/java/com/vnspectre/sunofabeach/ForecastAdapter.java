@@ -126,7 +126,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
      *
      * @param weatherData The new weather data to be displayed.
      */
-    public void setWeatherdata(String[] weatherData) {
+    public void setWeatherData(String[] weatherData) {
         mWeatherData = weatherData;
         notifyDataSetChanged();
     }
