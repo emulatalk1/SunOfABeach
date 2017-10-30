@@ -11,7 +11,7 @@ public class WeatherContract {
     public static final class WeatherEntry implements BaseColumns {
         public static String TABLE_NAME = "weather";
 
-        public static final String COLMUMN_DATE = "date";
+        public static final String COLUMN_DATE = "date";
 
         public static final  String COLUMN_WEATHER_ID = "weather_id";
 

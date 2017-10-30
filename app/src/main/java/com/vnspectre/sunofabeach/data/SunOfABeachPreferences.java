@@ -76,4 +76,22 @@ public class SunOfABeachPreferences {
         return DEFAULT_WEATHER_COORDINATES;
     }
 
+    /**
+     * Helper method to handle setting location details in Preferences (city name, latitude,
+     * longitude)
+     * 
+     * When the location details are updated, the database should to be cleared.
+     *
+     * @param context  Context used to get the SharedPreferences
+     * @param lat      the latitude of the city
+     * @param lon      the longitude of the city
+     */
+    public static void setLocationDetails(Context context, double lat, double lon) {
+        SharedPreferences sp = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+
+        editor.putLong(PREF_COORD_LAT, Double.doubleToRawLongBits(lat));
+        editor.putLong(PREF_COORD_LONG, Double.doubleToRawLongBits(lon));
+        editor.apply();
+    }
 }
