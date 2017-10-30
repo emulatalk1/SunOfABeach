@@ -1,5 +1,6 @@
 package com.vnspectre.sunofabeach;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -233,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
         startActivity(intent);
     }
 
+    @SuppressLint("StaticFieldLeak")
     @Override
     public Loader<String[]> onCreateLoader(int id, Bundle args) {
         return new AsyncTaskLoader<String[]>(this) {
