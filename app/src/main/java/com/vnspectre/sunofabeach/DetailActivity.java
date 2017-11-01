@@ -42,6 +42,7 @@ public class DetailActivity extends AppCompatActivity {
      */
     private Intent createShareForecastIntent() {
         Intent shareIndent = ShareCompat.IntentBuilder.from(this).setType("text/html").setText(mForecast + HASH_TAG).getIntent();
+        shareIndent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
         return shareIndent;
     }
 

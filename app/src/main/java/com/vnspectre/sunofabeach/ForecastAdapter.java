@@ -1,6 +1,7 @@
 package com.vnspectre.sunofabeach;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,13 +9,17 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.vnspectre.sunofabeach.utilities.SunOfABeachDateUtils;
+import com.vnspectre.sunofabeach.utilities.SunOfABeachWeatherUtils;
+
 /**
  * Created by Spectre on 10/19/17.
  */
 
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapterViewHolder> {
 
-    private String[] mWeatherData;
+    /* The context we use to utility methods, app resources and layout inflaters */
+    private final Context mContext;
 
     /*
      * An on-click handler that we've defined to make it easy for an Activity to interface with
@@ -29,13 +34,16 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         void onClick(String weatherForDay);
     }
 
+    private Cursor mCursor;
+
     /**
      * Creates ForecastAdapter.
      *
      * @param clickHandler the on=click handler for this adapter. This single handler is called
      *                     when aa item is clicked.
      */
-    public ForecastAdapter(ForecastAdapterOnClickHandler clickHandler) {
+    public ForecastAdapter(Context context, ForecastAdapterOnClickHandler clickHandler) {
+        mContext = context;
         mClickHandler = clickHandler;
     }
 
@@ -44,11 +52,11 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
      */
     public class ForecastAdapterViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
 
-        public final TextView mWeatherTextView;
+        final TextView weatherSummary;
 
-        public ForecastAdapterViewHolder(View view) {
+        ForecastAdapterViewHolder(View view) {
             super(view);
-            mWeatherTextView = view.findViewById(R.id.tv_weather_data);
+            weatherSummary = view.findViewById(R.id.tv_weather_data);
 
             //setOnClickListener on the view passed into the constructor
             view.setOnClickListener(this);
@@ -62,7 +70,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            String weatherForDay = mWeatherData[adapterPosition];
+            String weatherForDay = weatherSummary.getText().toString();
             mClickHandler.onClick(weatherForDay);
         }
     }
@@ -78,12 +86,10 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
      */
     @Override
     public ForecastAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        Context context = viewGroup.getContext();
-        int layoutIdForListItem = R.layout.forecast_list_item;
-        LayoutInflater inflater = LayoutInflater.from(context);
-        boolean shouldAttachToParentImmediately = false;
 
-        View view = inflater.inflate(layoutIdForListItem, viewGroup, shouldAttachToParentImmediately);
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+
+        View view = inflater.inflate(R.layout.forecast_list_item, viewGroup, false);
 
         return new ForecastAdapterViewHolder(view);
     }
@@ -101,8 +107,26 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
      */
     @Override
     public void onBindViewHolder(ForecastAdapterViewHolder holder, int position) {
-        String weatherForThisDay = mWeatherData[position];
-        holder.mWeatherTextView.setText(weatherForThisDay);
+        // Move the cursor to the appropriate position
+        mCursor.moveToPosition(position);
+
+        /* Read date from the cursor */
+        long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
+        /* Get human readable string using our utility method */
+        String dateString = SunOfABeachDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
+        /* Use the weatherId to obtain the proper description */
+        int weatherId = mCursor.getInt(MainActivity.INDEX_WEATHER_CONDITION_ID);
+        String description = SunOfABeachWeatherUtils.getStringForWeatherCondition(mContext, weatherId);
+        /* Read high temperature from the cursor (in degrees celsius) */
+        double highInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MAX_TEMP);
+        /* Read low temperature from the cursor (in degrees celsius) */
+        double lowInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MIN_TEMP);
+
+        String highAndLowTemperature = SunOfABeachWeatherUtils.formatHighLows(mContext, highInCelsius, lowInCelsius);
+        String weatherSummary = dateString + " - " + description + " - " + highAndLowTemperature;
+
+        // Display the summary that I created above
+        holder.weatherSummary.setText(weatherSummary);
     }
 
     /**
@@ -113,21 +137,14 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
      */
     @Override
     public int getItemCount() {
-        if (null == mWeatherData) {
+        if (null == mCursor) {
             return 0;
         }
-        return mWeatherData.length;
+        return mCursor.getCount();
     }
 
-    /**
-     * This method is used to set the weather forecast on a ForecastAdapter if we've already
-     * created one. This is handy when we get new data from the web but don't want to create a
-     * new ForecastAdapter to display it.
-     *
-     * @param weatherData The new weather data to be displayed.
-     */
-    public void setWeatherData(String[] weatherData) {
-        mWeatherData = weatherData;
+    void swapCursor(Cursor newCursor) {
+        mCursor = newCursor;
         notifyDataSetChanged();
     }
 }

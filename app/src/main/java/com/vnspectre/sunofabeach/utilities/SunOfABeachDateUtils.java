@@ -44,16 +44,28 @@ public final class SunOfABeachDateUtils {
     }
 
     /**
+     * This method returns the number of days since the epoch (January 01, 1970, 12:00 Midnight UTC)
+     * in UTC time from the current date.
+     *
+     * @param utcDate A date in milliseconds in UTC time.
+     *
+     * @return The number of days from the epoch to the date argument.
+     */
+    private static long elapsedDaysSinceEpoch(long utcDate) {
+        return TimeUnit.MILLISECONDS.toDays(utcDate);
+    }
+
+    /**
      * To make it easy to query or exact date, we normalize all dates that to go into
      * the database to the start of the day in UTC time.
      *
-     * @param utcDate the UTC date to normalize.
+     * @param date the UTC date to normalize.
      * @return the UTC date at 12 midnight.
      */
-    public static long normalizeDate(long utcDate) {
-        // Normalize the start date to the beginning of the (UTC) day in local time
-        long dateNew = utcDate / DAY_IN_MILLIS * DAY_IN_MILLIS;
-        return dateNew;
+    public static long normalizeDate(long date) {
+        long daysSinceEpoch = elapsedDaysSinceEpoch(date);
+        long millisFromEpochToTodayAtMidnightUtc = daysSinceEpoch * DAY_IN_MILLIS;
+        return millisFromEpochToTodayAtMidnightUtc;
     }
 
     /**
@@ -231,4 +243,5 @@ public final class SunOfABeachDateUtils {
 
         return isDateNormalized;
     }
+
 }

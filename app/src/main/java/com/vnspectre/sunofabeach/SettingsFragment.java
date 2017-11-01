@@ -1,5 +1,6 @@
 package com.vnspectre.sunofabeach;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -9,6 +10,9 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 
+import com.vnspectre.sunofabeach.data.SunOfABeachPreferences;
+import com.vnspectre.sunofabeach.data.WeatherContract;
+
 /**
  * Created by Spectre on 10/25/17.
  */
@@ -17,7 +21,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements OnShar
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-
         /* Add 'general' preferences, defined in the XML file */
         addPreferencesFromResource(R.xml.pref_general);
 
@@ -61,8 +64,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements OnShar
         super.onStop();
 
         /* Unregister the preference change listener */
-        getPreferenceScreen().getSharedPreferences()
-                .unregisterOnSharedPreferenceChangeListener(this);
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 
     // Register SettingsFragment (this) as a SharedPreferenceChangedListener in onStart.
@@ -71,13 +73,22 @@ public class SettingsFragment extends PreferenceFragmentCompat implements OnShar
         super.onStart();
 
         /* Register the preference change listener */
-        getPreferenceScreen().getSharedPreferences()
-                .registerOnSharedPreferenceChangeListener(this);
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
     // Override onSharedPreferenceChanged to update non CheckBoxPreferences when they are changed.
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Activity activity = getActivity();
+
+        if (key.equals(getString(R.string.pref_location_key))) {
+            // we've changed the location
+            // Wipe out any potential PlacePicker latlng values so that we can use this text entry.
+            SunOfABeachPreferences.resetLocationCoordinates(activity);
+        } else if (key.equals(getString(R.string.pref_units_key))) {
+            // units have changed. update lists of weather entries accordingly
+            activity.getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);
+        }
         Preference preference = findPreference(key);
         if (null != preference) {
             if (!(preference instanceof CheckBoxPreference)) {

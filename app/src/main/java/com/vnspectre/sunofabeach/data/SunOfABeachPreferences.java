@@ -53,7 +53,7 @@ public class SunOfABeachPreferences {
     /**
      * Returns the location currently set in Preferences. The default location this method
      */
-    public static String getPreferredWeatherLocation(MainActivity context) {
+    public static String getPreferredWeatherLocation(Context context) {
         // Return the user's preferred location
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String keyForLocation = context.getString(R.string.pref_location_key);
