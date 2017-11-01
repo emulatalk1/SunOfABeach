@@ -116,10 +116,8 @@ public class SunOfABeachPreferences {
 
         double[] preferredCoordinates = new double[2];
 
-        preferredCoordinates[0] = Double
-                .longBitsToDouble(sp.getLong(PREF_COORD_LAT, Double.doubleToRawLongBits(0.0)));
-        preferredCoordinates[1] = Double
-                .longBitsToDouble(sp.getLong(PREF_COORD_LONG, Double.doubleToRawLongBits(0.0)));
+        preferredCoordinates[0] = Double.longBitsToDouble(sp.getLong(PREF_COORD_LAT, Double.doubleToRawLongBits(0.0)));
+        preferredCoordinates[1] = Double.longBitsToDouble(sp.getLong(PREF_COORD_LONG, Double.doubleToRawLongBits(0.0)));
 
         return preferredCoordinates;
     }

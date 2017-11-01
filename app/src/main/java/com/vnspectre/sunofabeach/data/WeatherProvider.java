@@ -58,7 +58,7 @@ public class WeatherProvider extends ContentProvider {
                 String normalizedUtcDateString = uri.getLastPathSegment();
                 String[] selectionArguments = new String[]{normalizedUtcDateString};
 
-                cursor = mOpenHelper.getReadableDatabase().query(WeatherContract.WeatherEntry.TABLE_NAME, projection, WeatherContract.WeatherEntry.COLUMN_DATE + " = ? ", selectionArgs, null, null, sortOrder);
+                cursor = mOpenHelper.getReadableDatabase().query(WeatherContract.WeatherEntry.TABLE_NAME, projection, WeatherContract.WeatherEntry.COLUMN_DATE + " = ? ", selectionArguments, null, null, sortOrder);
                 break;
 
             default:

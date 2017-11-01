@@ -11,7 +11,7 @@ import com.vnspectre.sunofabeach.utilities.SunOfABeachDateUtils;
 
 public class WeatherContract {
 
-    public static final String CONTENT_AUTHORITY = "com.example.android.sunshine";
+    public static final String CONTENT_AUTHORITY = "com.vnspectre.sunofabeach";
 
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
