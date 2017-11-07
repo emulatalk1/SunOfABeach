@@ -37,6 +37,10 @@
             android:authorities="com.vnspectre.sunofabeach"
             android:exported="false"/>
 
+        <service
+            android:name=".sync.SunOfABeachSyncIntentService"
+            android:exported="false" />
+
     </application>
 
 </manifest>

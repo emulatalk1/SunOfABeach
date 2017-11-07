@@ -33,6 +33,7 @@ public class WeatherProvider extends ContentProvider {
         /* This URI is content://com.example.android.sunshine/weather/ */
         matcher.addURI(authority, WeatherContract.PATH_WEATHER, CODE_WEATHER);
 
+        // content://com.example.android.sunshine/weather/1472214172
         matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/#", CODE_WEATHER_WITH_DATE);
 
         return matcher;
@@ -44,27 +45,41 @@ public class WeatherProvider extends ContentProvider {
         return true;
     }
 
-    @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         Cursor cursor;
 
         switch (sUriMatcher.match(uri)) {
             case CODE_WEATHER:
-                cursor = mOpenHelper.getReadableDatabase().query(WeatherContract.WeatherEntry.TABLE_NAME, projection, selection, selectionArgs, null,null, sortOrder);
+                cursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
                 break;
 
             case CODE_WEATHER_WITH_DATE:
                 String normalizedUtcDateString = uri.getLastPathSegment();
                 String[] selectionArguments = new String[]{normalizedUtcDateString};
 
-                cursor = mOpenHelper.getReadableDatabase().query(WeatherContract.WeatherEntry.TABLE_NAME, projection, WeatherContract.WeatherEntry.COLUMN_DATE + " = ? ", selectionArguments, null, null, sortOrder);
+                cursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        projection,
+                        WeatherContract.WeatherEntry.COLUMN_DATE + " = ? ",
+                        selectionArguments,
+                        null,
+                        null,
+                        sortOrder);
                 break;
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 

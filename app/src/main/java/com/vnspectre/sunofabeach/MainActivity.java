@@ -73,22 +73,6 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 
     private ProgressBar mLoadingIndicator;
 
-//    /* Declare a TextView variable called mWeatherTextView. */
-//    //private TextView mWeatherTextView;
-//    private RecyclerView mRecyclerView;
-//    private ForecastAdapter mForecastAdapter;
-//
-//    /* Declare a TextView variable for the error message display. */
-//    private TextView mErrorMessageDisplay;
-//
-//    /* Declare a ProgressBar variable to show and hide the progress bar. */
-//    private ProgressBar mLoadingIndicator;
-//
-//    private static final int FORECAST_LOADER_ID = 0;
-//
-//    // A private static boolean flag for preference updates and initialize it to false
-//    private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
