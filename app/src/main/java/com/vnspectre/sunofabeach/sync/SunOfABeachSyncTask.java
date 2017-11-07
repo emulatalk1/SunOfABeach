@@ -50,15 +50,10 @@ public class SunOfABeachSyncTask {
                 ContentResolver sunshineContentResolver = context.getContentResolver();
 
                 /* Delete old weather data because we don't need to keep multiple days' data */
-                sunshineContentResolver.delete(
-                        WeatherContract.WeatherEntry.CONTENT_URI,
-                        null,
-                        null);
+                sunshineContentResolver.delete(WeatherContract.WeatherEntry.CONTENT_URI, null, null);
 
                 /* Insert our new weather data into Sunshine's ContentProvider */
-                sunshineContentResolver.bulkInsert(
-                        WeatherContract.WeatherEntry.CONTENT_URI,
-                        weatherValues);
+                sunshineContentResolver.bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, weatherValues);
             }
 
             /* If the code reaches this point, we have successfully performed our sync */

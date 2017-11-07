@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
          */
         getSupportLoaderManager().initLoader(ID_FORECAST_LOADER, null, this);
 
-        SunOfABeachSyncUtils.startImmediateSync(this);
+        SunOfABeachSyncUtils.initialize(this);
     }
 
     /**
