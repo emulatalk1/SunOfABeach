@@ -29,6 +29,8 @@ import android.widget.Toast;
 import com.vnspectre.sunofabeach.ForecastAdapter.ForecastAdapterOnClickHandler;
 import com.vnspectre.sunofabeach.data.SunOfABeachPreferences;
 import com.vnspectre.sunofabeach.data.WeatherContract;
+import com.vnspectre.sunofabeach.sync.SunOfABeachSyncTask;
+import com.vnspectre.sunofabeach.sync.SunOfABeachSyncUtils;
 import com.vnspectre.sunofabeach.utilities.FakeDataUtils;
 import com.vnspectre.sunofabeach.utilities.NetworkUtils;
 import com.vnspectre.sunofabeach.utilities.OpenWeatherJsonUtils;
@@ -92,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
 
-        FakeDataUtils.insertFakeData(this);
+        //FakeDataUtils.insertFakeData(this);
 
         /*
          * Using findViewById, we get a reference to our RecyclerView from xml. This allows us to
@@ -141,6 +143,8 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
          * the last created loader is re-used.
          */
         getSupportLoaderManager().initLoader(ID_FORECAST_LOADER, null, this);
+
+        SunOfABeachSyncUtils.startImmediateSync(this);
     }
 
     /**
