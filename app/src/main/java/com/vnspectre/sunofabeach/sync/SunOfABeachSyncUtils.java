@@ -8,7 +8,16 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.Driver;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.Trigger;
 import com.vnspectre.sunofabeach.data.WeatherContract;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Spectre on 11/7/17.
@@ -16,7 +25,34 @@ import com.vnspectre.sunofabeach.data.WeatherContract;
 
 public class SunOfABeachSyncUtils {
 
+    private static final int SYNC_INTERVAL_HOURS = 3;
+    private static final int SYNC_INTERVAL_SECONDS = (int) TimeUnit.HOURS.toSeconds(SYNC_INTERVAL_HOURS);
+    private static final int SYNC_FLEXTIME_SECONDS = SYNC_INTERVAL_SECONDS / 3;
+
     private static boolean sInitialized;
+
+    // Tag to identify our sync job.
+    private static final String SUNOFABEACH_SYNC_TAG = "sunshine-sync";
+
+    // Schedules a repeating sync.
+    static void scheduleFirebaseJobDispatcherSync(Context context) {
+
+        Driver driver = new GooglePlayDriver(context);
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
+
+        //Create the Job to periodically sync.
+        Job syncSunshineJob = dispatcher.newJobBuilder()
+                .setService(SunOfABeachFireBaseJobService.class)
+                .setTag(SUNOFABEACH_SYNC_TAG)
+                .setConstraints(Constraint.ON_ANY_NETWORK)
+                .setLifetime(Lifetime.FOREVER)
+                .setRecurring(true)
+                .setTrigger(Trigger.executionWindow(SYNC_INTERVAL_SECONDS, SYNC_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS))
+                .setReplaceCurrent(true)
+                .build();
+
+        dispatcher.schedule(syncSunshineJob);
+    }
 
     /**
      * Creates periodic sync tasks and checks to see if an immediate sync is required. If an
@@ -32,11 +68,12 @@ public class SunOfABeachSyncUtils {
         // If the method body is executed, set sInitialized to true
         sInitialized = true;
 
+        // Call triggers SunOfABeach to create its task to synchronize weather data periodically.
+        scheduleFirebaseJobDispatcherSync(context);
+
         /*
-         * We need to check to see if our ContentProvider has data to display in our forecast
-         * list. However, performing a query on the main thread is a bad idea as this may
-         * cause our UI to lag. Therefore, I create a thread in which we will run the query
-         * to check the contents of our ContentProvider.
+         * Check to see if ContentProvider has data to display in forecast. This thread will run
+         * the query to check the contents of ContentProvider.
          */
         new AsyncTask<Void, Void, Void>() {
             @Override
