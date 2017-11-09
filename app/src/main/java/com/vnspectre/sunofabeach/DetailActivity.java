@@ -1,25 +1,24 @@
 package com.vnspectre.sunofabeach;
 
 
-
 import android.content.Intent;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
-import android.support.v4.app.*;
+import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.Menu;
-
-
-import com.vnspectre.sunofabeach.data.WeatherContract;
-import com.vnspectre.sunofabeach.utilities.SunOfABeachDateUtils;
-import com.vnspectre.sunofabeach.utilities.SunOfABeachWeatherUtils;
-
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import com.vnspectre.sunofabeach.data.WeatherContract;
+import com.vnspectre.sunofabeach.databinding.ActivityDetailBinding;
+import com.vnspectre.sunofabeach.utilities.SunOfABeachDateUtils;
+import com.vnspectre.sunofabeach.utilities.SunOfABeachWeatherUtils;
 
 public class DetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -60,13 +59,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
      */
     private static final int ID_DETAIL_LOADER = 353;
 
-    private TextView mDateView;
-    private TextView mDescriptionView;
-    private TextView mHighTemperatureView;
-    private TextView mLowTemperatureView;
-    private TextView mHumidityView;
-    private TextView mWindView;
-    private TextView mPressureView;
+    private ActivityDetailBinding mDetailBinding;
 
     private Uri mUri;
 
@@ -75,15 +68,8 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail);
 
-        mDateView = (TextView) findViewById(R.id.date);
-        mDescriptionView = (TextView) findViewById(R.id.weather_description);
-        mHighTemperatureView = (TextView) findViewById(R.id.high_temperature);
-        mLowTemperatureView = (TextView) findViewById(R.id.low_temperature);
-        mHumidityView = (TextView) findViewById(R.id.humidity);
-        mWindView = (TextView) findViewById(R.id.wind);
-        mPressureView = (TextView) findViewById(R.id.pressure);
+        mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
         mUri = getIntent().getData();
         if (mUri == null) {
@@ -155,43 +141,80 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             return;
         }
 
+        // Weather Icon
+        // Read weather condition ID from the cursor (ID provided by Open Weather Map)
+        int weatherId = data.getInt(INDEX_WEATHER_CONDITION_ID);
+        // Determine the resource ID for the proper art
+        int weatherImageId = SunOfABeachWeatherUtils.getLargeArtResourceIdForWeatherCondition(weatherId);
+
+        //Set the resource ID on the icon to display the art
+        mDetailBinding.primaryInfo.weatherIcon.setImageResource(weatherImageId);
+
         // Date
         long localDateMidnightGmt = data.getLong(INDEX_WEATHER_DATE);
         String dateText = SunOfABeachDateUtils.getFriendlyDateString(this, localDateMidnightGmt, true);
-        mDateView.setText(dateText);
 
         // Weather description
-        int weatherId = data.getInt(INDEX_WEATHER_CONDITION_ID);
         String description = SunOfABeachWeatherUtils.getStringForWeatherCondition(this, weatherId);
-        mDescriptionView.setText(description);
+        String descriptionA11y = getString(R.string.a11y_forecast, description);
+
+        mDetailBinding.primaryInfo.weatherDescription.setText(description);
+        mDetailBinding.primaryInfo.weatherDescription.setContentDescription(descriptionA11y);
+
+        mDetailBinding.primaryInfo.weatherIcon.setContentDescription(descriptionA11y);
 
         // High temperature
-        int highInCelsius = data.getInt(INDEX_WEATHER_MAX_TEMP);
+        double highInCelsius = data.getDouble(INDEX_WEATHER_MAX_TEMP);
         String highString = SunOfABeachWeatherUtils.formatTemperature(this, highInCelsius);
-        mHighTemperatureView.setText(highString);
+
+        String highA11y = getString(R.string.a11y_high_temp, highString);
+
+        mDetailBinding.primaryInfo.highTemperature.setText(highString);
+        mDetailBinding.primaryInfo.highTemperature.setContentDescription(highA11y);
 
         // Low temperature
-        int lowInCelsius = data.getInt(INDEX_WEATHER_MIN_TEMP);
+        double lowInCelsius = data.getDouble(INDEX_WEATHER_MIN_TEMP);
         String lowString = SunOfABeachWeatherUtils.formatTemperature(this, lowInCelsius);
-        mLowTemperatureView.setText(lowString);
+
+        String lowA11y = getString(R.string.a11y_low_temp, lowString);
+
+        mDetailBinding.primaryInfo.lowTemperature.setText(lowString);
+        mDetailBinding.primaryInfo.lowTemperature.setContentDescription(lowA11y);
 
         // Humidity
         float humidity = data.getFloat(INDEX_WEATHER_HUMIDITY);
         String humidityString = getString(R.string.format_humidity, humidity);
-        mHumidityView.setText(humidityString);
+        String humidityA11y = getString(R.string.a11y_humidity, humidityString);
 
-        // Wind and direction
+        mDetailBinding.extraDetails.humidity.setText(humidityString);
+        mDetailBinding.extraDetails.humidity.setContentDescription(humidityA11y);
+
+        mDetailBinding.extraDetails.humidityLabel.setContentDescription(humidityA11y);
+
+        // Wind speed and direction
         float windSpeed = data.getFloat(INDEX_WEATHER_WIND_SPEED);
         float windDirection = data.getFloat(INDEX_WEATHER_DEGREES);
         String windString = SunOfABeachWeatherUtils.getFormattedWind(this, windSpeed, windDirection);
-        mWindView.setText(windString);
+
+        String windA11y = getString(R.string.a11y_wind, windString);
+
+        mDetailBinding.extraDetails.windMeasurement.setText(windString);
+        mDetailBinding.extraDetails.windMeasurement.setContentDescription(windA11y);
+
+        mDetailBinding.extraDetails.windLabel.setContentDescription(windA11y);
 
         // Pressure
         float pressure = data.getFloat(INDEX_WEATHER_PRESSURE);
-        String pressureString = getString(R.string.format_pressure, pressure);
-        mPressureView.setText(pressureString);
 
-        /* Store the forecast summary String in our forecast summary field to share later */
+        String pressureString = getString(R.string.format_pressure, pressure);
+        String pressureA11y = getString(R.string.a11y_pressure, pressureString);
+
+        mDetailBinding.extraDetails.pressure.setText(pressureString);
+        mDetailBinding.extraDetails.pressure.setContentDescription(pressureA11y);
+
+        mDetailBinding.extraDetails.pressureLabel.setContentDescription(pressureA11y);
+
+        // Store the forecast summary String in our forecast summary field to share later
         mForecastSummary = String.format("%s - %s - %s/%s", dateText, description, highString, lowString);
     }
 
