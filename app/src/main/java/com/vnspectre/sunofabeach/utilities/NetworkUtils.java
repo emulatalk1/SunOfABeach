@@ -116,30 +116,6 @@ public class NetworkUtils {
         }
     }
 
-    /**
-     * Builds the URL used to talk to the weather server using a location. This location is based
-     * on the query capabilities of the weather provider that we are using.
-     *
-     * @param locationQuery The location that will be queried for.
-     * @return The URL to use to query the weather server.
-     */
-    public static URL buildUrl(String locationQuery) {
-        Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                .appendQueryParameter(QUERY_PARAM, locationQuery)
-                .appendQueryParameter(FORMAT_PARAM, format)
-                .appendQueryParameter(UNITS_PARAM, units)
-                .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                .appendQueryParameter(APPID_PARAM, APPID)
-                .build();
-        URL url = null;
-        try {
-            url = new URL(builtUri.toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        Log.d(TAG, "buildUrl() returned: " + url);
-        return url;
-    }
 
 
     /**

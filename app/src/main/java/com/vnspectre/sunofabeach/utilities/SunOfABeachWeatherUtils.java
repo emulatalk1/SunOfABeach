@@ -122,7 +122,7 @@ public final class SunOfABeachWeatherUtils {
      *
      * @param context   Android context
      * @param weatherId from OpenWeatherMap API response
-     *                  See http://openweathermap.org/weather-conditions for a list of all IDs
+     *                  http://openweathermap.org/weather-conditions
      *
      * @return String for the weather condition, null if no relation is found.
      */

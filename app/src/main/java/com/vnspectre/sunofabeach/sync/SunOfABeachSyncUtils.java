@@ -32,7 +32,7 @@ public class SunOfABeachSyncUtils {
     private static boolean sInitialized;
 
     // Tag to identify our sync job.
-    private static final String SUNOFABEACH_SYNC_TAG = "sunshine-sync";
+    private static final String SUNOFABEACH_SYNC_TAG = "sunofabeach-sync";
 
     // Schedules a repeating sync.
     static void scheduleFirebaseJobDispatcherSync(Context context) {

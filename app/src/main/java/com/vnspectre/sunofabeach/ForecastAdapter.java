@@ -56,7 +56,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
 
         ForecastAdapterViewHolder(View view) {
             super(view);
-            weatherSummary = view.findViewById(R.id.tv_weather_data);
+            weatherSummary = (TextView) view.findViewById(R.id.tv_weather_data);
 
             //setOnClickListener on the view passed into the constructor
             view.setOnClickListener(this);

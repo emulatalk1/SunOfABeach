@@ -2,9 +2,8 @@ package com.vnspectre.sunofabeach.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.v7.preference.PreferenceManager;
+import android.preference.PreferenceManager;
 
-import com.vnspectre.sunofabeach.MainActivity;
 import com.vnspectre.sunofabeach.R;
 
 /**
@@ -20,12 +19,6 @@ public class SunOfABeachPreferences {
     public static final String PREF_COORD_LAT = "coord_lat";
     public static final String PREF_COORD_LONG = "coord_long";
 
-//    /*
-//     * Before we implement methods to return your REAL preference for location,
-//     * I use some default values to test.
-//     */
-//    private static final String DEFAULT_WEATHER_LOCATION = "Việt Nam";
-//    private static final double[] DEFAULT_WEATHER_COORDINATES = {21.0333, 105.85};
 
     /**
      * Returns true if the user has selected metric temperature display.
@@ -61,16 +54,6 @@ public class SunOfABeachPreferences {
         return prefs.getString(keyForLocation, defaultLocation);
     }
 
-//    private static String getDefaultWeatherLocation() {
-//        // TODO need to implement.
-//        return DEFAULT_WEATHER_LOCATION;
-//    }
-//
-//    public static double[] getDefaultWeatherCoordinates() {
-//        // TODO need to implement.
-//        return DEFAULT_WEATHER_COORDINATES;
-//    }
-
     /**
      * Helper method to handle setting location details in Preferences (city name, latitude,
      * longitude)
@@ -82,7 +65,7 @@ public class SunOfABeachPreferences {
      * @param lon      the longitude of the city
      */
     public static void setLocationDetails(Context context, double lat, double lon) {
-        SharedPreferences sp = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
 
         editor.putLong(PREF_COORD_LAT, Double.doubleToRawLongBits(lat));
@@ -96,7 +79,7 @@ public class SunOfABeachPreferences {
      * @param context Context used to get the SharedPreferences
      */
     public static void resetLocationCoordinates(Context context) {
-        SharedPreferences sp = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
 
         editor.remove(PREF_COORD_LAT);
@@ -112,7 +95,7 @@ public class SunOfABeachPreferences {
      * @return an array containing the two coordinate values for the user's preferred location
      */
     public static double[] getLocationCoordinates(Context context) {
-        SharedPreferences sp = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 
         double[] preferredCoordinates = new double[2];
 
@@ -129,7 +112,7 @@ public class SunOfABeachPreferences {
      * @return true if lat/long are saved in SharedPreferences
      */
     public static boolean isLocationLatLonAvailable(Context context) {
-        SharedPreferences sp = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 
         boolean spContainLatitude = sp.contains(PREF_COORD_LAT);
         boolean spContainLongitude = sp.contains(PREF_COORD_LONG);
@@ -149,11 +132,11 @@ public class SunOfABeachPreferences {
      * @return UNIX time of when the last notification was shown
      */
     public static long getLastNotificationTimeInMillis(Context context) {
-        /* Key for accessing the time at which Sunshine last displayed a notification */
+        /* Key for accessing the time at which SunOfABeach last displayed a notification */
         String lastNotificationKey = context.getString(R.string.pref_last_notification);
 
         /* As usual, we use the default SharedPreferences to access the user's preferences */
-        SharedPreferences sp = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 
         long lastNotificationTime = sp.getLong(lastNotificationKey, 0);
 
@@ -169,8 +152,7 @@ public class SunOfABeachPreferences {
      * @return Elapsed time in milliseconds since the last notification was shown
      */
     public static long getEllapsedTimeSinceLastNotification(Context context) {
-        long lastNotificationTimeMillis =
-                SunOfABeachPreferences.getLastNotificationTimeInMillis(context);
+        long lastNotificationTimeMillis = SunOfABeachPreferences.getLastNotificationTimeInMillis(context);
         long timeSinceLastNotification = System.currentTimeMillis() - lastNotificationTimeMillis;
         return timeSinceLastNotification;
     }
@@ -183,10 +165,31 @@ public class SunOfABeachPreferences {
      * @param timeOfNotification Time of last notification to save (in UNIX time)
      */
     public static void saveLastNotificationTime(Context context, long timeOfNotification) {
-        SharedPreferences sp = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
         String lastNotificationKey = context.getString(R.string.pref_last_notification);
         editor.putLong(lastNotificationKey, timeOfNotification);
         editor.apply();
+    }
+
+    /**
+     * Returns true if the user prefers to see notifications from SunOfABeach, false otherwise. This
+     * preference can be changed by the user within the SettingsFragment.
+     *
+     * @param context Used to access SharedPreferences
+     * @return true if the user prefers to see notifications, false otherwise
+     */
+    public static boolean areNotificationsEnabled(Context context) {
+        /* Key for accessing the preference for showing notifications */
+        String displayNotificationsKey = context.getString(R.string.pref_enable_notifications_key);
+
+        boolean shouldDisplayNotificationsByDefault = context.getResources().getBoolean(R.bool.show_notifications_by_default);
+
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+
+        /* If a value is stored with the key, we extract it here. If not, use a default. */
+        boolean shouldDisplayNotifications = sp.getBoolean(displayNotificationsKey, shouldDisplayNotificationsByDefault);
+
+        return shouldDisplayNotifications;
     }
 }
