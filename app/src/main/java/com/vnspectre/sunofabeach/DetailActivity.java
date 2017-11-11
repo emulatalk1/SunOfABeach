@@ -13,7 +13,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.vnspectre.sunofabeach.data.WeatherContract;
 import com.vnspectre.sunofabeach.databinding.ActivityDetailBinding;
@@ -153,6 +152,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         // Date
         long localDateMidnightGmt = data.getLong(INDEX_WEATHER_DATE);
         String dateText = SunOfABeachDateUtils.getFriendlyDateString(this, localDateMidnightGmt, true);
+        mDetailBinding.primaryInfo.date.setText(dateText);
 
         // Weather description
         String description = SunOfABeachWeatherUtils.getStringForWeatherCondition(this, weatherId);

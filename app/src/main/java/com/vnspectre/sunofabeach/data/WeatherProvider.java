@@ -30,7 +30,7 @@ public class WeatherProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = WeatherContract.CONTENT_AUTHORITY;
 
-        /* This URI is content://com.example.android.sunshine/weather/ */
+        // This URI is content://com.example.android.sunshine/weather/
         matcher.addURI(authority, WeatherContract.PATH_WEATHER, CODE_WEATHER);
 
         // content://com.example.android.sunshine/weather/1472214172
