@@ -79,13 +79,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         getSupportLoaderManager().initLoader(ID_DETAIL_LOADER, null, this);
     }
 
-    /**
-     * Uses the ShareCompat Intent builder to create our Forecast intent for sharing. We set the
-     * type of content that we are sharing (just regular text), the text itself, and we return the
-     * newly created Intent.
-     *
-     * @return The Intent to use to start our share.
-     */
+    // Share weather.
     private Intent createShareForecastIntent() {
         Intent shareIndent = ShareCompat.IntentBuilder.from(this).setType("text/html").setText(mForecastSummary + HASH_TAG).getIntent();
         shareIndent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);

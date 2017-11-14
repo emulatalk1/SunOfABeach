@@ -41,7 +41,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements OnShar
     // Method called setPreferenceSummary that accepts a Preference and an Object and sets the summary of the preference.
     private void setPreferenceSummary(Preference preference, Object value) {
         String stringValue = value.toString();
-        String key = preference.getKey();
+        //String key = preference.getKey();
 
         if (preference instanceof ListPreference) {
 

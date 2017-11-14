@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.Driver;
@@ -54,13 +53,8 @@ public class SunOfABeachSyncUtils {
         dispatcher.schedule(syncSunshineJob);
     }
 
-    /**
-     * Creates periodic sync tasks and checks to see if an immediate sync is required. If an
-     * immediate sync is required, this method will take care of making sure that sync occurs.
-     *
-     * @param context Context that will be passed to other methods and used to access the
-     *                ContentResolver.
-     */
+    // Creates periodic sync tasks and checks to see if an immediate sync is required. If an
+    // immediate sync is required, this method will take care of making sure that sync occurs.
     @SuppressLint("StaticFieldLeak")
     synchronized public static void initialize(final Context context) {
         if (sInitialized) return;
@@ -99,12 +93,7 @@ public class SunOfABeachSyncUtils {
         }.execute();
     }
 
-    /**
-     * Helper method to perform a sync immediately using an IntentService for asynchronous
-     * execution.
-     *
-     * @param context The Context used to start the IntentService for the sync.
-     */
+    // Helper method to perform a sync immediately using an IntentService for asynchronous execution.
     public static void startImmediateSync(Context context) {
         Intent intentToSyncImmediately = new Intent(context, SunOfABeachSyncIntentService.class);
         context.startService(intentToSyncImmediately);
